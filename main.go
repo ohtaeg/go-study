@@ -2,24 +2,50 @@ package main
 
 import (
 	"fmt"
-	"github.com/ohtaeg/job-scrapper/banking"
-	"log"
+	"github.com/ohtaeg/job-scrapper/dictionary"
 )
 
 func main() {
-	account := banking.NewBankAccount("ohtae")
-	log.Println(account)
 
-	account.Deposit(1000)
-	fmt.Println(account.Balance())
+	dictionaryTest()
+}
 
-	err := account.Withdraw(1001)
+func dictionaryTest() {
+	fmt.Println("## dictionary test ##")
+	dictionary := dictionary.Dictionary{}
+
+	// search
+	result, err := dictionary.Search("second")
 	if err != nil {
-		// log.Fatalln(err) // kill program
-		log.Println(err)
+		fmt.Println(err)
+	} else {
+		fmt.Println(result)
 	}
-	fmt.Println(account.Owner(), account.Balance())
 
-	account.ChangeOwner("ohtaeg")
-	fmt.Println(account.Owner(), account.Balance())
+	// add
+	word := "hello"
+	error := dictionary.Add(word, "Greeting")
+	if error != nil {
+		fmt.Println(error)
+	}
+	definition, err := dictionary.Search(word)
+	fmt.Println(definition)
+
+	// add exist
+	existError := dictionary.Add(word, "Greeting")
+	if existError != nil {
+		fmt.Println(existError)
+	}
+
+	// update
+	updateError := dictionary.Update(word, "Second")
+	if updateError != nil {
+		fmt.Println(updateError)
+	}
+	updatedWord, _ := dictionary.Search(word)
+	fmt.Println(updatedWord)
+
+	// delete
+	dictionary.Delete(word)
+	fmt.Println(dictionary.Search(word))
 }
