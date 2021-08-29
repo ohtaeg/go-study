@@ -1,1 +1,1 @@
-# job-scrapper
+# GO Study

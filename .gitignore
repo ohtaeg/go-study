@@ -78,6 +78,7 @@ fabric.properties
 *.dll
 *.so
 *.dylib
+/main
 
 # Test binary, built with `go test -c`
 *.test
@@ -123,4 +124,3 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
-
