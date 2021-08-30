@@ -21,10 +21,12 @@ func TestValidNumbers(t *testing.T) {
 }
 
 func TestInvalidNumbers(t *testing.T) {
-	assertInvalidNumbersError(t, "01")
+	assertInvalidNumbersError(t, "1")
+	assertInvalidNumbersError(t, "12")
 	assertInvalidNumbersError(t, "01234")
 	assertInvalidNumbersError(t, "abc")
 	assertInvalidNumbersError(t, "1bc")
+	assertInvalidNumbersError(t, "112")
 }
 
 func assertInvalidNumbersError(t *testing.T, numbers string) {
