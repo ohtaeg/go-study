@@ -1,6 +1,7 @@
 package baseball
 
 import (
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
@@ -30,4 +31,84 @@ func assertGuessReturnError(t *testing.T, game Game, nums string) {
 	if err == nil {
 		t.Fatalf("error must be returned: %s", nums)
 	}
+}
+
+func TestZeroStrike(t *testing.T) {
+	game, _ := CreateGame("123")
+	guessNumber := "567"
+	expected := 0
+
+	score, _ := game.guess(guessNumber)
+
+	assert.Equal(t, expected, score.strike)
+}
+
+func TestOneStrike(t *testing.T) {
+	game, _ := CreateGame("123")
+	guessNumber := "167"
+	expected := 1
+
+	score, _ := game.guess(guessNumber)
+
+	assert.Equal(t, expected, score.strike)
+}
+
+func TestTwoStrike(t *testing.T) {
+	game, _ := CreateGame("123")
+	guessNumber := "124"
+	expected := 2
+
+	score, _ := game.guess(guessNumber)
+
+	assert.Equal(t, expected, score.strike)
+}
+
+func TestThreeStrike(t *testing.T) {
+	game, _ := CreateGame("123")
+	guessNumber := "123"
+	expected := 3
+
+	score, _ := game.guess(guessNumber)
+
+	assert.Equal(t, expected, score.strike)
+}
+
+func TestZeroBall(t *testing.T) {
+	game, _ := CreateGame("123")
+	guessNumber := "567"
+	expected := 0
+
+	score, _ := game.guess(guessNumber)
+
+	assert.Equal(t, expected, score.ball)
+}
+
+func TestOneBall(t *testing.T) {
+	game, _ := CreateGame("123")
+	guessNumber := "517"
+	expected := 1
+
+	score, _ := game.guess(guessNumber)
+
+	assert.Equal(t, expected, score.ball)
+}
+
+func TestTwoBall(t *testing.T) {
+	game, _ := CreateGame("123")
+	guessNumber := "512"
+	expected := 2
+
+	score, _ := game.guess(guessNumber)
+
+	assert.Equal(t, expected, score.ball)
+}
+
+func TestThreeBall(t *testing.T) {
+	game, _ := CreateGame("123")
+	guessNumber := "312"
+	expected := 3
+
+	score, _ := game.guess(guessNumber)
+
+	assert.Equal(t, expected, score.ball)
 }

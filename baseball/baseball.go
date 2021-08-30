@@ -11,6 +11,8 @@ type gameNumbers struct {
 }
 
 type Score struct {
+	strike int
+	ball   int
 }
 
 func CreateGame(numbers string) (Game, error) {
@@ -42,7 +44,35 @@ func (g gameNumbers) guess(numbers string) (Score, error) {
 		return Score{}, fmt.Errorf("invalid nums : %s", numbers)
 	}
 
-	return Score{}, nil
+	strike := calculateStrike(g.numbers, numbers)
+	ball := calculateBall(g.numbers, numbers)
+
+	return Score{
+		strike: strike,
+		ball:   ball,
+	}, nil
+}
+
+func calculateStrike(numbers string, guessNumbers string) int {
+	strike := 0
+	for i := 0; i < len(numbers); i++ {
+		if numbers[i] == guessNumbers[i] {
+			strike++
+		}
+	}
+	return strike
+}
+
+func calculateBall(numbers string, guessNumbers string) int {
+	ball := 0
+	for i := 0; i < len(numbers); i++ {
+		for j := 0; j < len(numbers); j++ {
+			if numbers[i] == guessNumbers[j] && i != j {
+				ball++
+			}
+		}
+	}
+	return ball
 }
 
 func containsNonDigit(numbers string) bool {
