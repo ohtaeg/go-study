@@ -52,6 +52,8 @@ func (u *User) MarshalJSON() ([]byte, error) {
 	}{
 		CreateAt: converter(u.CreateAt),
 		MyUser:   (*MyUser)(u),
+		// *MyUser(u)  -> same as *(MyUser(u))
+		//(*MyUser)(u) -> u is converted to *MyUser pointer
 	})
 }
 
