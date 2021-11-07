@@ -2,7 +2,8 @@ syntax = "proto3";
 
 package protos;
 
-// option go_package = "main/grpc/protos";
+option go_package = "./protos";
+// $ protoc -I=./grpc/protos user.proto --go_out=./grpc
 
 message Person {
   string name = 1;
