@@ -1,4 +1,4 @@
-package grpc
+package main
 
 import (
 	"google.golang.org/grpc"
@@ -6,7 +6,7 @@ import (
 	"net"
 )
 
-func Start() {
+func main() {
 	listen, err := net.Listen("tcp", ":8080")
 	if err != nil {
 		log.Fatalf("failed to listen : %v", err)
