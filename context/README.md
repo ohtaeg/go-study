@@ -82,8 +82,70 @@ and return a derived Context (the child) and a CancelFunc.
 <br>
 
 
+```
+Programs that use Contexts should follow these rules 
+to keep interfaces consistent across packages and 
+enable static analysis tools to check context
+propagation:
+```
+```
+1. Context를 사용하는 프로그램은 다음 룰들을 따라야 한다.
+패키지 간에 인터페이스를 일관되게 유지하고 컨텍스트 전파를 확인하기 위해 정적 분석 툴을 활성화해야한다.
+```
+- 패키지 간 인터페이스를 일관되게 유지한다는 것은 일관된 행동을 할 수 있도록 유지하라는 것으로 이해가된다.
+- 다음 주석도 살펴보자.
 
+<br>
+<br>
+<br>
 
+```
+Do not store Contexts inside a struct type; instead, pass a Context
+explicitly to each function that needs it. The Context should be the first
+parameter, typically named ctx:
+```
+```
+```
+
+<br>
+<br>
+<br>
+
+```go
+func DoSomething(ctx context.Context, arg Arg) error {
+    // ... use ctx ...
+}
+```
+```
+Do not pass a nil Context, even if a function permits it. 
+Pass context.TODO if you are unsure about which Context to use.
+```
+```
+함수가 허락할지라도, Context에 nil을 전달하지 말 것.
+만약 사용할 Context가  확실하지 않는다면, Context.TODO를 전달해라
+```
+- 말 그대로 Context를 전달하면서 nil을 전달하지말고 어떤 Context를 전달해야할지 모르겠다면
+- `Context.TODO`를 전달하라고 한다. 꿀팁 ㄱㅅ
+
+<br>
+<br>
+<br>
+
+```
+Use context Values only for request-scoped data that transits processes and
+APIs, not for passing optional parameters to functions.
+```
+```
+오직 프로세스를 전송하는 요청 범위 내의 데이터만 Conext 값들을 사용하고
+Conext는 함수 파라미터에 값을 전달하기 위한 API가 아닙니다.
+```
+- Conext를 함수에 값을 전달하는 파라미터 용도로만 활용하지 말라는 뜻으로 이해가 되며,
+- A라는 Proccess가 있을 때 B라는 Process로 흐름을 전파시킬 때, 사용하라는 뜻인가? 싶다.
+  - 아니면 Proccess 내에서 제어할 수 있는 혹은 유효한 데이터만 Context를 이용해서 사용하라는 건가?
+
+<br>
+<br>
+<br>
 
 ## Context의 func
 - 한번 생성된 Context는 변경할 수 없다.
