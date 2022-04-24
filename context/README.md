@@ -1,8 +1,8 @@
 # Context 내부 속으로 (1)
 - 최근 이미지 업로드 / 다운로드 서버를 개발하면서 고루틴을 많이 다루게 되었다.
 - 이 기회에 고루틴 및 context에 개념을 정리하고 가고자 한다.
-- 잘 모르면 주석부터 해석해보는 것이 진리 아니겠는가
-- 1부는 패키지에 소개된 주석들을 살펴보는 것이다.
+- 잘 모르면 주석부터 해석해보는 것이 진리 아니겠는가 1부는 패키지에 소개된 주석들을 살펴보는 것이다.
+  - https://pkg.go.dev/context
 
 <br>
 <br>
@@ -100,12 +100,18 @@ propagation:
 <br>
 
 ```
-Do not store Contexts inside a struct type; instead, pass a Context
-explicitly to each function that needs it. The Context should be the first
-parameter, typically named ctx:
+Do not store Contexts inside a struct type;
+instead, pass a Context explicitly to each function that needs it.
+The Context should be the first parameter, typically named ctx:
 ```
 ```
+구조체에 Context를 저장하지마라;
+대신 Context를 필요로 하는 각 함수들에게 명시적으로 Context를 전달해라
+Context는 정통적으로 첫번째 파라미터로 ctx라는 이름으로 명명해야한다. 
 ```
+- **구조체에 Context를 저장하지 말고**
+- **함수에 파라미터로 전달하고**
+- 파라미터로 전달할 때 **첫번째 인자**에 그리고 **이름은 ctx로 명명**한다.
 
 <br>
 <br>
@@ -139,15 +145,66 @@ APIs, not for passing optional parameters to functions.
 오직 프로세스를 전송하는 요청 범위 내의 데이터만 Conext 값들을 사용하고
 Conext는 함수 파라미터에 값을 전달하기 위한 API가 아닙니다.
 ```
-- Conext를 함수에 값을 전달하는 파라미터 용도로만 활용하지 말라는 뜻으로 이해가 되며,
-- A라는 Proccess가 있을 때 B라는 Process로 흐름을 전파시킬 때, 사용하라는 뜻인가? 싶다.
-  - 아니면 Proccess 내에서 제어할 수 있는 혹은 유효한 데이터만 Context를 이용해서 사용하라는 건가?
+- Context를 함수에 값을 전달하는 파라미터 용도로만 활용하지 말라는 뜻으로 이해가 되며,
+- A라는 Process가 있을 때 B라는 Process로 흐름을 전파시킬 때, 사용하라는 뜻인가? 싶다.
+  - 아니면 Process 내에서 제어할 수 있는 혹은 유효한 데이터만 Context를 이용해서 사용하라는 건가?
 
 <br>
 <br>
 <br>
 
-## Context의 func
+```
+The same Context may be passed to functions running in different goroutines;
+Contexts are safe for simultaneous use by multiple goroutines.
+```
+```
+동일한 컨텍스트는 다른 고루틴들에서 실행되는 함수에 전달될 수 있다.
+컨텍스트는 여러 고루틴에서 동시에 사용하기에 안전하다.
+```
+요약해보자면
+- 서로 다른 고루틴으로 실행되는 함수들에게 동일한 컨텍스트를 전달할 수 있다.
+- 그리고 서로 다른 고루틴에서 동시에 사용하기에 안전하다.
+  - 동시에 사용하기에 안전하다는 것은 서로 다른 고루틴이 동시에 읽기 쓰기에 대한 동시성 보장을 해준다는 걸까?
+  - 해당 내용이 맞다면 go 언어의 철학이 생각나게 된다. 
+  - "Don’t communicate by sharing memory, share memory by communicating."
+  - 한국어로 풀이하면 "메모리를 공유함으로써 커뮤니케이션하지 말고, 커뮤니케이션을 통해 메모리를 공유하라."
+  - 컨텍스트에 서로 다른 고루틴들이 접근하는게 아니라 서로 다른 고루틴들 사이에 컨텍스트가 공유가 가능한 느낌을 받았다.
+
+<br>
+<br>
+<br>
+
+## 최종 요약
+- Context란 `값을 전달`할 수 있는 일종의 통로, 커뮤니케이션이다.
+- 하나의 프로세스 (request 등) 내에서 유지해야할 값을 Context에 담아 전달하고, 필요한 곳에서 Context에서 값을 꺼내 사용할 수 있다.
+
+<br>
+
+- 하나의 프로세스가 시작되고 종료되었을 때 Context를 종료시켜야 한다.
+- Context에서 제공하는 함수들을 사용하면 Context를 생성할 수 있다.
+- WithCancel(), WithDeadline(), WithTimeout()은 부모 Context 기준으로 `자식 Context를 생성`한다.
+  - 반환값으로 자식 Context와 `CancelFunction`을 반환하는데, CancelFunction을 실행시키면 자식 Context들이 모두 취소가 되는 것 같다.   
+- 부모 Context가 종료되면 부모 Context에서 파생된 자식 Context들도 종료가 된다.
+
+<br>
+
+- **구조체에 Context를 저장하지 말고**
+- Context를 필요로 하는 함수에 **파라미터로 전달하고**
+- 파라미터로 전달할 때 **첫번째 인자**에 그리고 **이름은 ctx로 명명**한다.
+- Context를 전달하면서 `nil을 전달하지말고` 어떤 Context를 전달해야할지 모르겠다면 `Context.TODO`를 전달하라
+- Context를 함수에 값을 전달하는 파라미터 용도로만 활용하지 말라
+
+<br>
+ 
+- 서로 다른 고루틴에서 동시에 사용하기에 안전하다.
+- 서로 다른 고루틴으로 실행되는 함수들에게 동일한 컨텍스트를 전달할 수 있다.
+
+
+<br>
+<br>
+<br>
+
+## etc
 - 한번 생성된 Context는 변경할 수 없다.
 - 컨텍스트에 값을 추가하고 싶을 때는 context.WithValue() 함수로 `새로운 컨텍스트`를 만들어줘야한다.
 - 컨텍스트의 값을 가져올 때는 Value 메서드를 사용한다.
