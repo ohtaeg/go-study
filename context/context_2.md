@@ -1,6 +1,5 @@
 # Context 내부 속으로 (2)
-- 이번엔 내부적으로 어떻게 구성되어 있는지 살펴보자.
-
+- 이번엔 내부적으로 어떻게 구성되어 있는지 그리고 주석을 생략하고 문서 기반으로 해석을 해보면서 살펴보자.
 
 ```go
 package context
@@ -26,7 +25,7 @@ type Context interface {
 
 ## DeadLine()
 - `Deadline() (deadline time.Time, ok bool)`
-- 시간과 bool값을 반환한다.
+- 시간과 bool값을 반환하는데 
 - 반환된 시간은 **컨텍스트로 취소 신호가 전달될 때까지 남은 시간**, 즉 Context가 끝나야할 시간이다.
 - bool 값은 deadline이 있는지 여부를 표시한다.
   - false 일 경우 deadline이 없다는 것이며
@@ -80,3 +79,47 @@ true
 <br>
 
 ## Done()
+- `Done() <-chan struct{}`
+- Done() 메서드는 채널을 반환하는데 어떤 채널인지 문서를 읽어보자.
+```
+Done returns a channel that's closed when work done on behalf of this context should be canceled
+```
+- **Context가 취소 되거나 시간을 초과할 때 종료 신호를 전달받을 수 있는 close channel을 반환한다.**
+  - 즉, cancel 함수를 실행하여 컨텍스트에 종료 신호를 보내면 종료 상황을 Done() 메서드를 통해 알 수 있다.
+
+<br>
+
+```
+Done may return nil if this context can never be canceled.
+```
+- 취소되지 않은 컨텍스트의 경우 nil이 반환된다.
+
+<br>
+
+```
+Successive calls to Done return the same value.
+```
+- DeadLine()과 마찬가지로 완료에 대한 연속 호출은 동일한 값을 반환한다.
+
+<br>
+
+```
+The close of the Done channel may happen asynchronously, after the cancel function returns.
+```
+- Done()이 반환하는 채널의 종료는 cancel 함수가 반환된 후 비동기적으로 발생할 수 있다고 한다.
+
+<br>
+
+```
+WithCancel arranges for Done to be closed when cancel is called;
+WithDeadline arranges for Done to be closed when the deadline expires;
+WithTimeout arranges for Done to be closed when the timeout elapses.
+```
+- WithCancel(), WithDeadline(), WithTimeout() 메서드들은 해당 함수들이 반환하는 cancel() 함수가 호출되었을 때 Done()의 반환 값인 종료 신호를 전달받을 수 있는 close channel이 닫히도록 처리한다.
+
+<br>
+
+```
+Done() is provided for use in select statements
+```
+- Done()은 **select 문**에서 사용하기 위해 제공된다.
